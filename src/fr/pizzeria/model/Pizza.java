@@ -7,7 +7,7 @@ public class Pizza {
 	double prix;
 	private int compteur = 0;
 
-	Pizza(String code, String libelle, double prix){
+	public Pizza(String code, String libelle, double prix){
 		compteur++;
 		this.id = compteur;
 		this.code = code;
@@ -15,7 +15,7 @@ public class Pizza {
 		this.prix = prix;
 	}
 	
-	Pizza(Integer id,String code, String libelle, double prix){
+	public Pizza(Integer id,String code, String libelle, double prix){
 		//to think doublons
 		this.id = id;
 		this.code = code;
