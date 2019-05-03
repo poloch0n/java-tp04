@@ -47,6 +47,54 @@ public class PizzeriaAdminConsoleApp {
 		run(QuestionUser);
 	}
 	
+	private static void showMenu() {
+		// gestion du cas menu vide
+			// parce que le menu est initialisé mais quand même
+		if(menu != null) {
+			showText("Liste des pizzas");
+			for(Pizza pizza: menu) {
+				String text = pizza.code + " -> " + pizza.libelle + " (" + pizza.prix + " €) ";
+				showText(text);
+			}
+		} else {
+			showText("Vous n'avez pas encore ajouter de pizza, prenez l'option 2");
+		}
+
+	}
+ 	
+	private static void addPizza() {
+		showText("Ajout d'une nouvelle pizza");
+		Pizza newPizza = getInformationPizza();
+		
+		String message = checkInformationPizza(newPizza,true,"add");
+		if(!message.equals("")) {
+			showText(message);
+			addPizza();
+			return;
+		}
+		menu = addPizzaMenu(newPizza);
+		
+	}
+	
+	private static void updatePizza() {
+		showText("Mise à jour d’une pizza");
+		
+		showText("Veuillez choisir le code de la pizza à modifier");
+		String code = getCode();
+		//Vérification de l'existance de la pizza
+		String[] messages = checkCode(code);
+		String message = messages[0];
+		int index = Integer.parseInt(messages[1]);
+		
+		if(!message.equals("")) {
+			showText(message);
+			updatePizza();
+			return;
+		}
+		applyUpdatePizza(index);
+
+	}
+	
 	private static void deletePizza() {
 		showText("Suppression d’une pizza");
 
@@ -61,20 +109,75 @@ public class PizzeriaAdminConsoleApp {
 		if(!message.equals("")) {
 			showText(message);
 			deletePizza();
+			return;
 		}
 		menu = applyDeletePizza(index);
 	}
 
-	private static void addPizza() {
-		showText("Ajout d'une nouvelle pizza");
-		Pizza newPizza = getInformationPizza();
+	private static void initialisationMenu() {
+		addPizzaMenuWithId(0, "PEP","Pépéroni", 12.50);
+		addPizzaMenuWithId(1, "MAR","Margherita", 14.00);
+		addPizzaMenuWithId(2, "REI","La Reine", 11.50);
+		addPizzaMenuWithId(3, "FRO","La 4 fromages", 12.00);
+		addPizzaMenuWithId(4, "CAN","La cannibale", 12.50);
+		addPizzaMenuWithId(5, "SAV","La savoyarde", 13.00);
+		addPizzaMenuWithId(6, "ORI","L'orientale", 13.50);
+		addPizzaMenuWithId(7, "IND","L'indienne", 14.00);
 		
-		String message = checkInformationPizza(newPizza,true,"add");
+	}
+
+	private static void showIntroduction() {
+		showText("***** Pizzeria Administration *****");
+	}
+
+	private static void addPizzaMenuWithId(Integer id,String code, String libelle, double prix) {
+		//instancier une pizza
+		Pizza pizza = new Pizza(code,libelle,prix);
+		menu = addPizzaMenu(pizza);
+	}
+
+	private static Pizza[] addPizzaMenu( Pizza pizza) {
+
+		Pizza[] menuTemporary;
+		if(menu != null) {
+			menuTemporary = new Pizza[menu.length + 1];
+			if(menu.length != 0) {
+				for (int i = 0; i < menu.length; i++) {
+					menuTemporary[i] = menu[i];
+				}
+			}
+			menuTemporary[menu.length] = pizza;
+		} else {
+			menuTemporary = new Pizza[1];
+			menuTemporary[0] = pizza;
+		}
+		return menuTemporary;
+	}
+	
+	private static void applyUpdatePizza(int index) {
+
+		Pizza updatedPizza = getInformationPizza();
+		String message = "";
+		
+		updatedPizza.id = menu[index].id;
+		menu[index] = updatedPizza;
+		message = checkInformationPizza(updatedPizza,false,"update");
 		if(!message.equals("")) {
 			showText(message);
-			addPizza();
+			applyUpdatePizza(index);
 		}
-		menu = addPizzaMenu(newPizza);
+	}
+	
+	private static String checkInformationPizza(Pizza pizza, boolean unicity, String methode) {
+		
+		String error = "";
+		error += checkFormatInformationPizza(pizza);
+
+		if(unicity) {
+			error += checkUnicityInformationPizza(pizza,methode);
+		}
+		
+		return error;
 	}
 	
 	private static String[] checkCode(String code) {
@@ -92,48 +195,16 @@ public class PizzeriaAdminConsoleApp {
 		return messages;
 	}
 	
-	private static void updatePizza() {
-		showText("Mise à jour d’une pizza");
-		
-		showText("Veuillez choisir le code de la pizza à modifier");
-		String code = getCode();
-		//Vérification de l'existance de la pizza
-		String[] messages = checkCode(code);
-		String message = messages[0];
-		int index = Integer.parseInt(messages[1]);
-		
-		if(!message.equals("")) {
-			showText(message);
-			updatePizza();
-		}
-		applyUpdatePizza(index);
-
-	}
-	
-	private static void applyUpdatePizza(int index) {
-
-		Pizza updatedPizza = getInformationPizza();
-		String message = "";
-		
-		updatedPizza.id = menu[index].id;
-		menu[index] = updatedPizza;
-		message = checkInformationPizza(updatedPizza,false,"update");
-		if(!message.equals("")) {
-			showText(message);
-			applyUpdatePizza(index);
-		}
-	}
-	
 	private static String checkFormatInformationPizza(Pizza pizza) {
 		String error = "";
 		if(pizza.code.equals("")) {
-			error += "\r\n Le format du code "+ pizza.code +" est invalide";
+			error += "\r\nLe format du code "+ pizza.code +" est invalide";
 		}
 		if(pizza.libelle.equals("")) {
-			error += "\r\n Le format du libelle " + pizza.libelle + " est invalide";
+			error += "\r\nLe format du libelle " + pizza.libelle + " est invalide";
 		}
 		if(isNegative(pizza.prix)) {
-			error += "\r\n Le format du prix est invalide";
+			error += "\r\nLe format du prix est invalide";
 		}
 		return error;
 	}
@@ -154,41 +225,30 @@ public class PizzeriaAdminConsoleApp {
 		return error;
 	}
 
-	private static String checkInformationPizza(Pizza pizza, boolean unicity, String methode) {
-		String error = "";
 
-		error += checkFormatInformationPizza(pizza);
-
-		if(unicity) {
-			error += checkUnicityInformationPizza(pizza,methode);
+	private static Pizza[] applyDeletePizza(Integer index) {
+		Pizza[] menuTemporary = null;
+		if(menu.length == 1) {
+			//todo delete menu;
+			menuTemporary = null;
+		} else if(menu != null ) {
+			menuTemporary = new Pizza[menu.length - 1];
+				for (int i = 0; i < menu.length; i++) {
+					if(i<index) {
+						menuTemporary[i] = menu[i];
+					} else if(i>index) {
+						menuTemporary[i] = menu[i+1];
+					}					
+				}
 		}
+		return menuTemporary;
 		
-		return error;
 	}
-	
+
 	public static boolean isNegative(double d) {
 	     return Double.compare(d, 0.0) < 0;
 	}
-	
-	private static void showMenu() {
-		// gestion du cas menu vide
-			// parce que le menu est initialisé mais quand même
-		if(menu != null) {
-			showText("Liste des pizzas");
-			for(Pizza pizza: menu) {
-				String text = pizza.code + " -> " + pizza.libelle + " (" + pizza.prix + " €) ";
-				showText(text);
-			}
-		} else {
-			showText("Vous n'avez pas encore ajouter de pizza, prenez l'option 2");
-		}
 
-	}
- 	
-	private static void showIntroduction() {
-		showText("***** Pizzeria Administration *****");
-	}
-	
 	private static Pizza getInformationPizza() {
 
 		showText("Veuillez saisir le code :");
@@ -218,68 +278,6 @@ public class PizzeriaAdminConsoleApp {
 		return prix;
 	}
 	
-	private static void initialisationMenu() {
-		addPizzaMenuWithId(0, "PEP","Pépéroni", 12.50);
-		addPizzaMenuWithId(1, "MAR","Margherita", 14.00);
-		addPizzaMenuWithId(2, "REI","La Reine", 11.50);
-		addPizzaMenuWithId(3, "FRO","La 4 fromages", 12.00);
-		addPizzaMenuWithId(4, "CAN","La cannibale", 12.50);
-		addPizzaMenuWithId(5, "SAV","La savoyarde", 13.00);
-		addPizzaMenuWithId(6, "ORI","L'orientale", 13.50);
-		addPizzaMenuWithId(7, "IND","L'indienne", 14.00);
-		
-	}
-	
-	private static void addPizzaMenuWithId(Integer id,String code, String libelle, double prix) {
-		//instancier une pizza
-		Pizza pizza = new Pizza(code,libelle,prix);
-		menu = addPizzaMenu(pizza);
-	}
-
-	private static Pizza[] addPizzaMenu( Pizza pizza) {
-
-		Pizza[] menuTemporary;
-		if(menu != null) {
-			menuTemporary = new Pizza[menu.length + 1];
-			if(menu.length != 0) {
-				for (int i = 0; i < menu.length; i++) {
-					menuTemporary[i] = menu[i];
-				}
-			}
-			menuTemporary[menu.length] = pizza;
-		} else {
-			menuTemporary = new Pizza[1];
-			menuTemporary[0] = pizza;
-		}
-		return menuTemporary;
-	}
-	
-	private static Pizza[] applyDeletePizza(Integer index) {
-		Pizza[] menuTemporary = null;
-		if(menu.length == 1) {
-			//todo delete menu;
-			menuTemporary = null;
-		} else if(menu != null ) {
-			menuTemporary = new Pizza[menu.length - 1];
-				for (int i = 0; i < menu.length; i++) {
-					if(i<index) {
-						menuTemporary[i] = menu[i];
-					} else if(i>index) {
-						menuTemporary[i] = menu[i+1];
-					}					
-				}
-		}
-		return menuTemporary;
-		
-	}
-	private static void showMenuOptions() {
-		showText("1. Lister les pizzas \r\n2. Ajouter une nouvelle pizza \r\n3. Mettre à jour une pizza \r\n4. Supprimer une pizza \r\n99. Sortir");
-	}
-	
-	private static void showText(String texte) {
-		System.out.println(texte);
-	}
-
 	private static int getIntFromMenu(Scanner QuestionUser) {
 
 		String input = QuestionUser.nextLine();
@@ -291,7 +289,7 @@ public class PizzeriaAdminConsoleApp {
             return 0;
         }
 	}
-	
+
 	private static String getStringFromMenu(Scanner QuestionUser) {
 		try {
 			//todo : attention injection ?
@@ -303,13 +301,23 @@ public class PizzeriaAdminConsoleApp {
 	}
 
 	private static Double getDoubleFromMenu(Scanner QuestionUser) {
-		try {
-			//todo : attention injection ?
-			return questionUser.nextDouble();
-		} catch(Exception e)  {
-			// Gestion des cas où l'utilisateur ne rentre pas un double au bon format
-			return -1.00;
-		}
+		String input = QuestionUser.next();
+	    double number = 0;
+	    try {
+	        number = Double.parseDouble(input);
+	        return number;
+	    } catch (Exception e) {
+	        return -1.00;
+	    }
 	}
+	
+	private static void showMenuOptions() {
+		showText("1. Lister les pizzas \r\n2. Ajouter une nouvelle pizza \r\n3. Mettre à jour une pizza \r\n4. Supprimer une pizza \r\n99. Sortir");
+	}
+	
+	private static void showText(String texte) {
+		System.out.println(texte);
+	}
+
 
 }
