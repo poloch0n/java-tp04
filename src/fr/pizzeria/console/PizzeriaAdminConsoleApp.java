@@ -281,12 +281,15 @@ public class PizzeriaAdminConsoleApp {
 	}
 
 	private static int getIntFromMenu(Scanner QuestionUser) {
-		try {
-			return questionUser.nextInt();
-		} catch(Exception e)  {
-			// Gestion des cas où l'utilisateur ne rentre pas un nombre
-			return 0;
-		}
+
+		String input = QuestionUser.nextLine();
+        int number = 0;
+        try {
+            number = Integer.parseInt(input);
+            return number;
+        } catch (Exception e) {
+            return 0;
+        }
 	}
 	
 	private static String getStringFromMenu(Scanner QuestionUser) {
