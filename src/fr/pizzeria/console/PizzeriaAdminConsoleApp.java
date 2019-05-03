@@ -34,7 +34,7 @@ public class PizzeriaAdminConsoleApp {
 			updatePizza();
 			break;
 		case 4:
-			showText("Suppression d’une pizza");
+			deletePizza();
 			break;
 		case 99:
 			showText("Aurevoir☹ ");
@@ -46,6 +46,25 @@ public class PizzeriaAdminConsoleApp {
 		}
 		run(QuestionUser);
 	}
+	
+	private static void deletePizza() {
+		showText("Suppression d’une pizza");
+
+		showText("Veuillez choisir le code de la pizza à supprimer");
+
+		String code = getCode();
+		//Vérification de l'existance de la pizza
+		String[] messages = checkCode(code);
+		String message = messages[0];
+		int index = Integer.parseInt(messages[1]);
+		
+		if(!message.equals("")) {
+			showText(message);
+			deletePizza();
+		}
+		menu = applyDeletePizza(index);
+	}
+
 	private static void addPizza() {
 		showText("Ajout d'une nouvelle pizza");
 		Pizza newPizza = getInformationPizza();
@@ -55,7 +74,22 @@ public class PizzeriaAdminConsoleApp {
 			showText(message);
 			addPizza();
 		}
-		menu = addPizzaMenu(menu, newPizza);
+		menu = addPizzaMenu(newPizza);
+	}
+	
+	private static String[] checkCode(String code) {
+		String index = "0";
+		String message = "Le code saisi semble ne correspondre a aucune pizza, pouvez vous réessayer ?";
+
+		for (int i = 0; i < menu.length; i++ ) {
+			if(menu[i].code.equals(code)) {
+				message = "";
+				index = Integer.toString(i);
+				break;
+			}
+		}
+		String[] messages = {message,index};
+		return messages;
 	}
 	
 	private static void updatePizza() {
@@ -63,17 +97,11 @@ public class PizzeriaAdminConsoleApp {
 		
 		showText("Veuillez choisir le code de la pizza à modifier");
 		String code = getCode();
-		int index = 0;
-		
 		//Vérification de l'existance de la pizza
-		String message = "Le code saisi semble ne correspondre a aucune pizza, pouvez vous réessayer ?";
-		for (int i = 0; i < menu.length; i++ ) {
-			if(menu[i].code.equals(code)) {
-				message = "";
-				index = i;
-				break;
-			}
-		}
+		String[] messages = checkCode(code);
+		String message = messages[0];
+		int index = Integer.parseInt(messages[1]);
+		
 		if(!message.equals("")) {
 			showText(message);
 			updatePizza();
@@ -205,27 +233,45 @@ public class PizzeriaAdminConsoleApp {
 	private static void addPizzaMenuWithId(Integer id,String code, String libelle, double prix) {
 		//instancier une pizza
 		Pizza pizza = new Pizza(code,libelle,prix);
-		menu = addPizzaMenu(menu, pizza);
+		menu = addPizzaMenu(pizza);
 	}
 
-	private static Pizza[] addPizzaMenu(Pizza[] menuInit, Pizza pizza) {
+	private static Pizza[] addPizzaMenu( Pizza pizza) {
 
 		Pizza[] menuTemporary;
-		if(menuInit != null) {
-			menuTemporary = new Pizza[menuInit.length + 1];
-			if(menuInit.length != 0) {
-				for (int i = 0; i < menuInit.length; i++) {
-					menuTemporary[i] = menuInit[i];
+		if(menu != null) {
+			menuTemporary = new Pizza[menu.length + 1];
+			if(menu.length != 0) {
+				for (int i = 0; i < menu.length; i++) {
+					menuTemporary[i] = menu[i];
 				}
 			}
-			menuTemporary[menuInit.length] = pizza;
+			menuTemporary[menu.length] = pizza;
 		} else {
 			menuTemporary = new Pizza[1];
 			menuTemporary[0] = pizza;
 		}
 		return menuTemporary;
 	}
-
+	
+	private static Pizza[] applyDeletePizza(Integer index) {
+		Pizza[] menuTemporary = null;
+		if(menu.length == 1) {
+			//todo delete menu;
+			menuTemporary = null;
+		} else if(menu != null ) {
+			menuTemporary = new Pizza[menu.length - 1];
+				for (int i = 0; i < menu.length; i++) {
+					if(i<index) {
+						menuTemporary[i] = menu[i];
+					} else if(i>index) {
+						menuTemporary[i] = menu[i+1];
+					}					
+				}
+		}
+		return menuTemporary;
+		
+	}
 	private static void showMenuOptions() {
 		showText("1. Lister les pizzas \r\n2. Ajouter une nouvelle pizza \r\n3. Mettre à jour une pizza \r\n4. Supprimer une pizza \r\n99. Sortir");
 	}
