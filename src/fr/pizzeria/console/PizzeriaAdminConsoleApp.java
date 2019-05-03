@@ -89,9 +89,9 @@ public class PizzeriaAdminConsoleApp {
 		if(!message.equals("")) {
 			showText(message);
 			updatePizza();
-			return;
+		} else {
+			applyUpdatePizza(index);
 		}
-		applyUpdatePizza(index);
 
 	}
 	
@@ -213,10 +213,10 @@ public class PizzeriaAdminConsoleApp {
 		String error = "";
 		for (Pizza pizzaSaved : menu) {
 			if(pizzaSaved.code.equals(pizza.code)) {
-				error += "\r\n Ce code a déjà été utilisé";
+				error += "\r\nCe code a déjà été utilisé";
 			}
 			if(pizzaSaved.libelle.equals(pizza.libelle)) {
-				error += "\r\n Ce libelle a déjà été utilisé";
+				error += "\r\nCe libelle a déjà été utilisé";
 			}
 			if(methode.equals("add") && pizzaSaved.id == pizza.id) {
 					pizza.id ++;
@@ -280,7 +280,7 @@ public class PizzeriaAdminConsoleApp {
 	
 	private static int getIntFromMenu(Scanner QuestionUser) {
 
-		String input = QuestionUser.nextLine();
+		String input = QuestionUser.next();
         int number = 0;
         try {
             number = Integer.parseInt(input);
@@ -288,6 +288,7 @@ public class PizzeriaAdminConsoleApp {
         } catch (Exception e) {
             return 0;
         }
+        
 	}
 
 	private static String getStringFromMenu(Scanner QuestionUser) {
