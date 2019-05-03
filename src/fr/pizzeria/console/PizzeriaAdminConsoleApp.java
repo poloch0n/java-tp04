@@ -2,11 +2,13 @@ package fr.pizzeria.console;
 
 import java.util.Scanner;
 import fr.pizzeria.model.*;
+import java.lang.Integer; 
 
 public class PizzeriaAdminConsoleApp {
 
 	private static Scanner questionUser;
 	static Pizza[] menu;
+
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 
@@ -111,7 +113,7 @@ public class PizzeriaAdminConsoleApp {
 			deletePizza();
 			return;
 		}
-		menu = applyDeletePizza(index);
+		applyDeletePizza(index);
 	}
 
 	private static void initialisationMenu() {
@@ -132,7 +134,7 @@ public class PizzeriaAdminConsoleApp {
 
 	private static void addPizzaMenuWithId(Integer id,String code, String libelle, double prix) {
 		//instancier une pizza
-		Pizza pizza = new Pizza(code,libelle,prix);
+		Pizza pizza = new Pizza(id,code,libelle,prix);
 		menu = addPizzaMenu(pizza);
 	}
 
@@ -167,7 +169,37 @@ public class PizzeriaAdminConsoleApp {
 			applyUpdatePizza(index);
 		}
 	}
-	
+
+	private static void applyDeletePizza(Integer index) {
+//		for (int i = 0; i < menu.length; i++) {
+//			showText(menu[i].libelle);
+//			showText(""+menu[i].id);
+//		}
+		showText("start");
+		Pizza[] menuTemporary = null;
+		if(menu.length == 1) {
+			//todo delete menu;
+			menuTemporary = null;
+		} else if(menu != null ) {
+			menuTemporary = new Pizza[menu.length - 1];
+			for (int i = 0; i < menuTemporary.length; i++) {
+				int compare = Integer.compare(i,index);
+				if( compare<0) {
+					menuTemporary[i] = new Pizza(menu[i].id,menu[i].code,menu[i].libelle,menu[i].prix);
+				} else if(compare > 0) {
+					menuTemporary[i] = new Pizza(menu[i+1].id,menu[i+1].code,menu[i+1].libelle,menu[i+1].prix);
+				}
+			}
+			for (int i = 0; i < menuTemporary.length; i++) {
+				showText(menuTemporary[i].libelle);
+			}
+			showText("what is done can't be undone. you won't see him again");
+		}
+
+		menu = menuTemporary;	
+
+	}
+
 	private static String checkInformationPizza(Pizza pizza, boolean unicity, String methode) {
 		
 		String error = "";
@@ -225,25 +257,6 @@ public class PizzeriaAdminConsoleApp {
 		return error;
 	}
 
-
-	private static Pizza[] applyDeletePizza(Integer index) {
-		Pizza[] menuTemporary = null;
-		if(menu.length == 1) {
-			//todo delete menu;
-			menuTemporary = null;
-		} else if(menu != null ) {
-			menuTemporary = new Pizza[menu.length - 1];
-				for (int i = 0; i < menu.length; i++) {
-					if(i<index) {
-						menuTemporary[i] = menu[i];
-					} else if(i>index) {
-						menuTemporary[i] = menu[i+1];
-					}					
-				}
-		}
-		return menuTemporary;
-		
-	}
 
 	public static boolean isNegative(double d) {
 	     return Double.compare(d, 0.0) < 0;
