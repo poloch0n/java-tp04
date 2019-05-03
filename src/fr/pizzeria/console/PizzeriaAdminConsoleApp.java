@@ -37,13 +37,11 @@ public class PizzeriaAdminConsoleApp {
 		case 99:
 			showText("Aurevoir☹ ");
 			System.exit(0);
-			// Arreter 
 			break;
 		default:
 			showText("Veuillez choisir une option valide");
 		    break;
 		}
-		
 		run(QuestionUser);
 	}
 
