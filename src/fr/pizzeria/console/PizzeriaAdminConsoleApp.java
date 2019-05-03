@@ -21,19 +21,17 @@ public class PizzeriaAdminConsoleApp {
 	private static void run(Scanner QuestionUser) {
 
 		showMenuOptions();
-		int answer = getNumberFromMenu(QuestionUser);
+		int answer = getIntFromMenu(QuestionUser);
 		switch(answer) {
 
 		case 1:
-			showText("Liste des pizzas");
-			// afficher les pizzas
-				//case empty
+			showMenu();
 			break;
 		case 2:
-			showText("Ajout d'une nouvelle pizza");
+			addPizza();
 			break;
 		case 3:
-			showText("Mise à jour d’une pizza");
+			updatePizza();
 			break;
 		case 4:
 			showText("Suppression d’une pizza");
@@ -48,9 +46,148 @@ public class PizzeriaAdminConsoleApp {
 		}
 		run(QuestionUser);
 	}
+	private static void addPizza() {
+		showText("Ajout d'une nouvelle pizza");
+		Pizza newPizza = getInformationPizza();
+		
+		String message = checkInformationPizza(newPizza,true,"add");
+		if(!message.equals("")) {
+			showText(message);
+			addPizza();
+		}
+		menu = addPizzaMenu(menu, newPizza);
+	}
+	
+	private static void updatePizza() {
+		showText("Mise à jour d’une pizza");
+		
+		showText("Veuillez choisir le code de la pizza à modifier");
+		String code = getCode();
+		int index = 0;
+		
+		//Vérification de l'existance de la pizza
+		String message = "Le code saisi semble ne correspondre a aucune pizza, pouvez vous réessayer ?";
+		for (int i = 0; i < menu.length; i++ ) {
+			if(menu[i].code.equals(code)) {
+				message = "";
+				index = i;
+				break;
+			}
+		}
+		if(!message.equals("")) {
+			showText(message);
+			updatePizza();
+		}
+		applyUpdatePizza(index);
 
+	}
+	
+	private static void applyUpdatePizza(int index) {
+
+		Pizza updatedPizza = getInformationPizza();
+		String message = "";
+		
+		updatedPizza.id = menu[index].id;
+		menu[index] = updatedPizza;
+		message = checkInformationPizza(updatedPizza,false,"update");
+		if(!message.equals("")) {
+			showText(message);
+			applyUpdatePizza(index);
+		}
+	}
+	
+	private static String checkFormatInformationPizza(Pizza pizza) {
+		String error = "";
+		if(pizza.code.equals("")) {
+			error += "\r\n Le format du code "+ pizza.code +" est invalide";
+		}
+		if(pizza.libelle.equals("")) {
+			error += "\r\n Le format du libelle " + pizza.libelle + " est invalide";
+		}
+		if(isNegative(pizza.prix)) {
+			error += "\r\n Le format du prix est invalide";
+		}
+		return error;
+	}
+	
+	private static String checkUnicityInformationPizza(Pizza pizza,String methode) {
+		String error = "";
+		for (Pizza pizzaSaved : menu) {
+			if(pizzaSaved.code.equals(pizza.code)) {
+				error += "\r\n Ce code a déjà été utilisé";
+			}
+			if(pizzaSaved.libelle.equals(pizza.libelle)) {
+				error += "\r\n Ce libelle a déjà été utilisé";
+			}
+			if(methode.equals("add") && pizzaSaved.id == pizza.id) {
+					pizza.id ++;
+			}
+		}
+		return error;
+	}
+
+	private static String checkInformationPizza(Pizza pizza, boolean unicity, String methode) {
+		String error = "";
+
+		error += checkFormatInformationPizza(pizza);
+
+		if(unicity) {
+			error += checkUnicityInformationPizza(pizza,methode);
+		}
+		
+		return error;
+	}
+	
+	public static boolean isNegative(double d) {
+	     return Double.compare(d, 0.0) < 0;
+	}
+	
+	private static void showMenu() {
+		// gestion du cas menu vide
+			// parce que le menu est initialisé mais quand même
+		if(menu != null) {
+			showText("Liste des pizzas");
+			for(Pizza pizza: menu) {
+				String text = pizza.code + " -> " + pizza.libelle + " (" + pizza.prix + " €) ";
+				showText(text);
+			}
+		} else {
+			showText("Vous n'avez pas encore ajouter de pizza, prenez l'option 2");
+		}
+
+	}
+ 	
 	private static void showIntroduction() {
 		showText("***** Pizzeria Administration *****");
+	}
+	
+	private static Pizza getInformationPizza() {
+
+		showText("Veuillez saisir le code :");
+		String code = getCode();
+
+		showText("Veuillez saisir le libelle (sans espace au possible) :");
+		String libelle = getLibelle();
+		
+		showText("Veuillez saisir le prix :");
+		double prix = getPrice();
+		
+		return new Pizza(code,libelle,prix);
+	}
+	
+	private static String getCode() {
+		String code = getStringFromMenu(questionUser);
+		return code;
+	}
+
+	private static String getLibelle() {
+		String libelle = getStringFromMenu(questionUser);
+		return libelle;
+	}
+
+	private static Double getPrice() {
+		Double prix = getDoubleFromMenu(questionUser);
+		return prix;
 	}
 	
 	private static void initialisationMenu() {
@@ -65,24 +202,14 @@ public class PizzeriaAdminConsoleApp {
 		
 	}
 	
-	private static void addPizzaMenu(String code, String libelle, double prix) {
-		//instancier une pizza
-		Pizza pizza = new Pizza(code,libelle,prix);
-		menu = ajustPizzaMenu(menu, pizza);
-	}
-	
 	private static void addPizzaMenuWithId(Integer id,String code, String libelle, double prix) {
 		//instancier une pizza
 		Pizza pizza = new Pizza(code,libelle,prix);
-		menu = ajustPizzaMenu(menu, pizza);
+		menu = addPizzaMenu(menu, pizza);
 	}
 
-	private static Pizza[] ajustPizzaMenu(Pizza[] menuInit, Pizza pizza) {
-		//todo : think again about this fonction
-			// check doublons id
-			// check double libelle
-			// check doublons code
-			// principe
+	private static Pizza[] addPizzaMenu(Pizza[] menuInit, Pizza pizza) {
+
 		Pizza[] menuTemporary;
 		if(menuInit != null) {
 			menuTemporary = new Pizza[menuInit.length + 1];
@@ -107,12 +234,32 @@ public class PizzeriaAdminConsoleApp {
 		System.out.println(texte);
 	}
 
-	private static int getNumberFromMenu(Scanner QuestionUser) {
+	private static int getIntFromMenu(Scanner QuestionUser) {
 		try {
 			return questionUser.nextInt();
 		} catch(Exception e)  {
 			// Gestion des cas où l'utilisateur ne rentre pas un nombre
 			return 0;
+		}
+	}
+	
+	private static String getStringFromMenu(Scanner QuestionUser) {
+		try {
+			//todo : attention injection ?
+			return (String) questionUser.next();
+		} catch(Exception e)  {
+			// Gestion des cas où l'utilisateur ne rentre pas un text au bon format
+			return "";
+		}
+	}
+
+	private static Double getDoubleFromMenu(Scanner QuestionUser) {
+		try {
+			//todo : attention injection ?
+			return questionUser.nextDouble();
+		} catch(Exception e)  {
+			// Gestion des cas où l'utilisateur ne rentre pas un double au bon format
+			return -1.00;
 		}
 	}
 

@@ -1,10 +1,10 @@
 package fr.pizzeria.model;
 
 public class Pizza {
-	int id;
-	String code;
-	String libelle;
-	double prix;
+	public int id;
+	public String code;
+	public String libelle;
+	public double prix;
 	private int compteur = 0;
 
 	public Pizza(String code, String libelle, double prix){
