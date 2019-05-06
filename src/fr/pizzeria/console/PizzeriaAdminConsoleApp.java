@@ -183,11 +183,7 @@ public class PizzeriaAdminConsoleApp {
 	}
 
 	private static void applyDeletePizza(Integer index) {
-//		for (int i = 0; i < menu.length; i++) {
-//			showText(menu[i].libelle);
-//			showText(""+menu[i].id);
-//		}
-		showText("start");
+
 		Pizza[] menuTemporary = null;
 		if(menu.length == 1) {
 			//todo delete menu;
