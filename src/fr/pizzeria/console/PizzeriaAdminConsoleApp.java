@@ -182,16 +182,12 @@ public class PizzeriaAdminConsoleApp {
 			menuTemporary = null;
 		} else if(menu != null ) {
 			menuTemporary = new Pizza[menu.length - 1];
-			for (int i = 0; i < menuTemporary.length; i++) {
-				int compare = Integer.compare(i,index);
-				if( compare<0) {
+			for (int i = 0; i < index; i++) {
 					menuTemporary[i] = new Pizza(menu[i].id,menu[i].code,menu[i].libelle,menu[i].prix);
-				} else if(compare > 0) {
-					menuTemporary[i] = new Pizza(menu[i+1].id,menu[i+1].code,menu[i+1].libelle,menu[i+1].prix);
+				
 				}
-			}
-			for (int i = 0; i < menuTemporary.length; i++) {
-				showText(menuTemporary[i].libelle);
+			for (int i = index; i < menuTemporary.length; i++) {
+			menuTemporary[i] = new Pizza(menu[i+1].id,menu[i+1].code,menu[i+1].libelle,menu[i+1].prix);
 			}
 			showText("what is done can't be undone. you won't see him again");
 		}
