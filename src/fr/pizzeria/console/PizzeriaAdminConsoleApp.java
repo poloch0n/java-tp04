@@ -50,18 +50,14 @@ public class PizzeriaAdminConsoleApp {
 	}
 	
 	private static void showMenu() {
-		// gestion du cas menu vide
-			// parce que le menu est initialisé mais quand même
-		if(menu != null) {
-			showText("Liste des pizzas");
-			for(Pizza pizza: menu) {
-				String text = pizza.code + " -> " + pizza.libelle + " (" + pizza.prix + " €) ";
-				showText(text);
-			}
-		} else {
-			showText("Vous n'avez pas encore ajouter de pizza, prenez l'option 2");
+		if(checkMenuEmpty()) {
+			return;
 		}
-
+		showText("Liste des pizzas");
+		for(Pizza pizza: menu) {
+			String text = pizza.code + " -> " + pizza.libelle + " (" + pizza.prix + " €) ";
+			showText(text);
+		}
 	}
  	
 	private static void addPizza() {
@@ -78,9 +74,21 @@ public class PizzeriaAdminConsoleApp {
 		
 	}
 	
+	private static boolean checkMenuEmpty() {
+		if(menu == null) {
+			showText("Vous n'avez pas encore ajouter de pizza, prenez l'option 2");
+			return true;
+		} else {
+			return false;
+		}
+	}
+
 	private static void updatePizza() {
 		showText("Mise à jour d’une pizza");
 		
+		if(checkMenuEmpty()) {
+			return;
+		}
 		showText("Veuillez choisir le code de la pizza à modifier");
 		String code = getCode();
 		//Vérification de l'existance de la pizza
@@ -100,6 +108,10 @@ public class PizzeriaAdminConsoleApp {
 	private static void deletePizza() {
 		showText("Suppression d’une pizza");
 
+		if(checkMenuEmpty()) {
+			return;
+		}
+		
 		showText("Veuillez choisir le code de la pizza à supprimer");
 
 		String code = getCode();
